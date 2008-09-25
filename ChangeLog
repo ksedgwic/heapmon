@@ -1,0 +1,11 @@
+2007-11-19  Ken Sedgwick  <ken+5a4@bonsai.com>
+
+	* heapmon.cpp: 
+	  Added so name and addr when symbol mapping fails.
+
+	* heapmon.cpp: 
+	  Added raw address output when symbol mapping fails.
+
+	* heapmon.cpp (thread_run): 
+	  Fixed compilation warning.
+

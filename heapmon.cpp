@@ -213,6 +213,10 @@ namespace
 
 void report(bool flag)
 {
+    char const * heapmondir = getenv("HEAPMONDIR");
+    if (!heapmondir)
+        heapmondir = ".";
+
 #if 0
     NodeSeq found;
 
@@ -234,7 +238,7 @@ void report(bool flag)
     pthread_mutex_unlock(&g_mutex);
 
     ostringstream path;
-    path << "./heapmon-" << getpid() << ".log";
+    path << heapmondir << "/heapmon-" << getpid() << ".log";
     ofstream logout(path.str().c_str(), ios::app);
 
     if (flag)
@@ -279,7 +283,7 @@ void report(bool flag)
     pthread_mutex_unlock(&g_mutex);
 
     ostringstream path;
-    path << "./heapmon-" << getpid() << ".log";
+    path << heapmondir << "/heapmon-" << getpid() << ".log";
     ofstream logout(path.str().c_str(), ios::app);
 
     if (flag)
@@ -305,8 +309,12 @@ thread_run(void * arg)
     time_t lastmtime;
     bool flag = false;
 
+    char const * heapmondir = getenv("HEAPMONDIR");
+    if (!heapmondir)
+        heapmondir = ".";
+
     ostringstream path;
-    path << "./heapmon-" << getpid() << ".ctl";
+    path << heapmondir << "/heapmon-" << getpid() << ".ctl";
 
     // create the control file (only interested in it's mtime ...)
     {

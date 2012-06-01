@@ -201,6 +201,12 @@ namespace
 
     typedef std::map<Node, std::pair<size_t, size_t>, std::less<Node>, NodeAlloc> NodeMap;
 
+    typedef std::pair<Node, std::pair<size_t, size_t> > NodeSize;
+
+    typedef HeapAlloc<NodeSize, MyHeap> NodeSizeAlloc;
+
+    typedef std::vector<NodeSize, NodeSizeAlloc> NodeSizeSeq;
+
     pthread_mutex_t		g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
     pthread_key_t 		g_inrptkey;
@@ -210,6 +216,11 @@ namespace
 }
 
 // ----------------------------------------------------------------
+
+bool by_totalmem_desc(NodeSize const & ns1, NodeSize const & ns2)
+{
+    return ns1.second.second >= ns2.second.second;
+}
 
 void report(bool flag)
 {
@@ -286,14 +297,27 @@ void report(bool flag)
     path << heapmondir << "/heapmon-" << getpid() << ".log";
     ofstream logout(path.str().c_str(), ios::app);
 
+    // Sort the node/size pairs by total memory, descending.
+    NodeSizeSeq nss;
+    nss.reserve(found.size());
+    for (NodeMap::iterator pos = found.begin(); pos != found.end(); ++pos)
+    {
+        nss.push_back(make_pair(pos->first,
+                                make_pair(pos->second.first,
+                                          pos->second.second)));
+    }
+    sort(nss.begin(), nss.end(), by_totalmem_desc);
+
     if (flag)
     {
         // print them outside the lock (print routines use heap ...)
-        for (NodeMap::iterator pos = found.begin(); pos != found.end(); ++pos)
-            logout << pos->first
-                   << "NUMBLOCKS=" << pos->second.first << endl
-                   << "TOTALMEM=" << pos->second.second << endl
+        for (NodeSizeSeq::iterator it = nss.begin(); it != nss.end(); ++it)
+        {
+            logout << it->first
+                   << "NUMBLOCKS=" << it->second.first << endl
+                   << "TOTALMEM=" << it->second.second << endl
                    << endl;
+        }
     }
 
     pthread_setspecific(g_inrptkey, (void *) 0);

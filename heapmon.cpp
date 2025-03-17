@@ -520,11 +520,17 @@ extern "C"
         if (ptr >= g_bootstrap && ptr < g_bootstrap + sizeof(g_bootstrap))
             return;
 
-        // cerr << "free(" << ptr << ")" << endl;
+        long inreport = (long) pthread_getspecific(g_inrptkey);
+        long entered = (long) pthread_getspecific(g_reentkey);
 
-        pthread_mutex_lock(&g_mutex);
-        g_nodes->erase(ptr);
-        pthread_mutex_unlock(&g_mutex);
+        if (!inreport && !entered)
+        {
+            // cerr << "free(" << ptr << ")" << " starting" << endl;
+
+            pthread_mutex_lock(&g_mutex);
+            g_nodes->erase(ptr);
+            pthread_mutex_unlock(&g_mutex);
+        }
 
         (*g_real_free)(ptr);
     }

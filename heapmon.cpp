@@ -443,6 +443,8 @@ init()
 
     g_nodes = new NodeTable;
 
+    // cerr << "init completed" << endl;
+
     g_initstate = AFTER;
 }
 
@@ -467,13 +469,15 @@ extern "C"
 
         if (!inreport && !entered)
         {
-            // cerr << "malloc(" << sz << ") = " << ptr << endl;
+            // cerr << "malloc(" << sz << ") = " << ptr << " starting" << endl;
 
             pthread_setspecific(g_reentkey, (void *) 1);
             pthread_mutex_lock(&g_mutex);
             g_nodes->insert(make_pair(ptr, Node(ptr, sz)));
             pthread_mutex_unlock(&g_mutex);
             pthread_setspecific(g_reentkey, (void *) 0);
+
+            // cerr << "malloc(" << sz << ") = " << ptr << " finished" << endl;
         }
 
         return ptr;
@@ -499,13 +503,15 @@ extern "C"
 
         if (!inreport && !entered)
         {
-            // cerr << "malloc(" << sz << ") = " << ptr << endl;
+            // cerr << "calloc(" << totsz << ") = " << ptr << " starting" << endl;
 
             pthread_setspecific(g_reentkey, (void *) 1);
             pthread_mutex_lock(&g_mutex);
             g_nodes->insert(make_pair(ptr, Node(ptr, totsz)));
             pthread_mutex_unlock(&g_mutex);
             pthread_setspecific(g_reentkey, (void *) 0);
+
+            // cerr << "calloc(" << totsz << ") = " << ptr << " finished" << endl;
         }
 
         return ptr;
@@ -530,6 +536,8 @@ extern "C"
             pthread_mutex_lock(&g_mutex);
             g_nodes->erase(ptr);
             pthread_mutex_unlock(&g_mutex);
+
+            // cerr << "free(" << ptr << ")" << " finished" << endl;
         }
 
         (*g_real_free)(ptr);
@@ -550,10 +558,14 @@ extern "C"
 
         if (sz == 0)
         {
+            // cerr << "realloc(" << ptr << ", " << sz << ") = " << retptr << " starting" << endl;
+
             // this is the same as a free
             pthread_mutex_lock(&g_mutex);
             g_nodes->erase(ptr);
             pthread_mutex_unlock(&g_mutex);
+
+            // cerr << "realloc(" << ptr << ", " << sz << ") = " << retptr << " finished" << endl;
 
             return retptr;
         }
@@ -565,10 +577,15 @@ extern "C"
         }
 
         // remove the old entry and insert the new
+
+        // cerr << "realloc(" << ptr << ", " << sz << ") = " << retptr << " starting" << endl;
+
         pthread_mutex_lock(&g_mutex);
         g_nodes->erase(ptr);
         g_nodes->insert(make_pair(retptr, Node(retptr, sz)));
         pthread_mutex_unlock(&g_mutex);
+
+        // cerr << "realloc(" << ptr << ", " << sz << ") = " << retptr << " finished" << endl;
 
         return retptr;
     }

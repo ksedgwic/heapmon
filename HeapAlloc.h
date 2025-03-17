@@ -89,7 +89,7 @@ public:
     // return maximum number of elements that can be allocated
     size_type max_size() const throw()
     {
-#if defined(HAVELIMITS)           
+#if defined(HAVELIMITS)
         return std::numeric_limits<size_t>::max() / sizeof(T);
 #else
         return size_t(-1) / sizeof(T);

@@ -1,2 +1,5 @@
 /heapmon.o
 /heapmon.so
+/hello
+/heapmon-*.ctl
+/heapmon-*.log

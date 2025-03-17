@@ -92,7 +92,7 @@ public:
         memcpy(m_head, i.m_head, sizeof(m_head));
         memcpy(m_btdata, i.m_btdata, sizeof(m_btdata));
     }
-    
+
     Node & operator=(const Node & rhs)
     {
         m_marked = rhs.m_marked;
@@ -188,7 +188,6 @@ private:
 
     void *				m_btdata[NFRAMES];
     size_t				m_btsize;
-    
 };
 
 namespace
@@ -406,7 +405,7 @@ init_realloc(void * iptr, size_t sz)
     return optr;
 }
 
-void
+[[maybe_unused]] void
 init_free(void * ptr)
 {
     // do nothing ...
@@ -421,7 +420,7 @@ init()
         return;
 
     g_initstate = DURING;
-    
+
     assert(pthread_key_create(&g_inrptkey, NULL) == 0);
     assert(pthread_key_create(&g_reentkey, NULL) == 0);
 
@@ -460,7 +459,7 @@ extern "C"
             return init_malloc(sz);
 
         // if we get here g_initstate == AFTER
-        
+
         void * ptr = (*g_real_malloc)(sz);
 
         long inreport = (long) pthread_getspecific(g_inrptkey);

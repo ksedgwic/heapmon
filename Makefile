@@ -12,15 +12,22 @@ MODSRC = 	\
 
 MODOBJ = 	$(MODSRC:%.cpp=%.o)
 
+HELLO =		hello
+
+HELLOSRC =	hello.cpp
+
 LIBS =		-lpthread -ldl
 
-all:		$(MODSO)
+all:		$(MODSO) $(HELLO)
 
 clean:
-	rm -f $(MODSO) $(MODOBJ)
+	rm -f $(MODSO) $(MODOBJ) $(HELLO)
 
 $(MODSO):	$(MODOBJ)
 	$(SOCMD) $(SOFLAGS) -o $@ $(CPPFLAGS) $(LDFLAGS) $(MODOBJ) $(LIBS)
 
 %.o:		%.cpp
 	$(CPPCMD) -c $< -o $@ $(CPPFLAGS) $(DEFINES) $(INCS)
+
+%:		%.cpp
+	$(CPPCMD) $< -o $@ $(CPPFLAGS) $(DEFINES) $(INCS)
